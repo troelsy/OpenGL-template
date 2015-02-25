@@ -99,7 +99,7 @@ static void init(){
     glDepthFunc(GL_GREATER);
     glClearDepth(-1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glPointSize(16.0f);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     // Create a Vertex Array Object
     glGenVertexArrays(1, &VertexArrayID);
