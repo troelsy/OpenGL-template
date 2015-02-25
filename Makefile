@@ -24,8 +24,12 @@ ifeq ($(OS),Windows_NT)
 	LIBS		+=-Ld:/SDK/glew-1.12.0/lib
 	LDFLAGS		+=-lglew32
 else
+	# Some may need this - depends on package manager
+	CPPFLAGS	+=-I/opt/local/include/
+	CPPFLAGS	+=-I/opt/local
+	LDFLAGS	+=-L/opt/local/lib
+
 	# Add location for X11 library
-	CPPFLAGS	+=-I/opt/local/include # For GLM on Mac
 	LDFLAGS		+=-L/opt/X11/lib
 
 	# Should be added when using GLFW (http://www.glfw.org/docs/latest/build.html#build_link_xcode)
