@@ -131,7 +131,7 @@ static void printProgramError(GLuint program, string const& msg){
     exit(EXIT_FAILURE);
 }
 
-static void addShader(string const& shaderString, GLenum shaderType, GLuint m_program){
+static GLuint addShader(string const& shaderString, GLenum shaderType, GLuint m_program){
     GLuint shaderObj = glCreateShader(shaderType);
 
     if (shaderObj == 0){
@@ -152,14 +152,15 @@ static void addShader(string const& shaderString, GLenum shaderType, GLuint m_pr
         printShaderError(shaderObj, shaderType, "Fatal: Error compiling shader type");
 
     glAttachShader(m_program, shaderObj);
+    return shaderObj;
 }
 
 GLuint compileShader(string const& vs, string const& fs){
     GLuint program = glCreateProgram();
     assert(program != 0 && "Fatal: Error creating shader program.");
 
-    addShader(vs, GL_VERTEX_SHADER, program);
-    addShader(fs, GL_FRAGMENT_SHADER, program);
+    GLuint fragmentShader = addShader(vs, GL_VERTEX_SHADER, program);
+    GLuint vertexShader = addShader(fs, GL_FRAGMENT_SHADER, program);
 
     GLint success;
     glLinkProgram(program);
@@ -173,6 +174,11 @@ GLuint compileShader(string const& vs, string const& fs){
     if(success == 0) {
         printProgramError(program, "Fatal: Invalid shader program");
     }
+
+    glDetachShader(program, fragmentShader);
+    glDetachShader(program, vertexShader);
+    glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
 
     return program;
 }
