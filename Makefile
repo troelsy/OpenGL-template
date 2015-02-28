@@ -46,7 +46,7 @@ endif
 endif
 
 # File objects
-SOURCES		=$(wildcard *.cpp) $(wildcard */*.cpp)
+SOURCES		=$(wildcard *.cpp) #$(wildcard */*.cpp)
 OBJECTS		=$(SOURCES:.cpp=.o)
 WINOBJECTS	=$(subst /,\,$(OBJECTS))
 ifeq ($(OS),Windows_NT)
