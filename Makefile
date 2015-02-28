@@ -46,7 +46,7 @@ endif
 endif
 
 # File objects
-SOURCES		=$(wildcard *.cpp) #$(wildcard */*.cpp)
+SOURCES		=$(wildcard src/*.cpp) #$(wildcard */*.cpp)
 OBJECTS		=$(SOURCES:.cpp=.o)
 WINOBJECTS	=$(subst /,\,$(OBJECTS))
 ifeq ($(OS),Windows_NT)
@@ -60,18 +60,21 @@ endif
 default: cleanexe $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-		$(CXX) $(CPPFLAGS) -o  $(EXECUTABLE) $(OBJECTS) $(LIBS) $(LDFLAGS)
+		$(CXX) $(CPPFLAGS) -o  bin/$(EXECUTABLE) $(OBJECTS) $(LIBS) $(LDFLAGS)
+
+run: test
+	(cd bin; ./test) # This is stupid ...
 
 clean: cleanexe
 ifeq ($(OS),Windows_NT)
-	del $(WINOBJECTS)
+	del bin/$(WINOBJECTS)
 else
-	rm -rf $(OBJECTS)
+	rm -rf bin/$(OBJECTS)
 endif
 
 cleanexe:
 ifeq ($(OS),Windows_NT)
-	del $(EXECUTABLE)
+	del bin/$(EXECUTABLE)
 else
-	rm -rf $(EXECUTABLE)
+	rm -rf bin/$(EXECUTABLE)
 endif
