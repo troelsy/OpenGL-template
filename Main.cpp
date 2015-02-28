@@ -226,17 +226,6 @@ GLuint compileShader(string const& vs, string const& fs){
     return program;
 }
 
-
-void abort_(const char * s, ...)
-{
-        va_list args;
-        va_start(args, s);
-        vfprintf(stderr, s, args);
-        fprintf(stderr, "\n");
-        va_end(args);
-        abort();
-}
-
 GLuint read_png_file(const char * file_name, int * width, int * height){
     png_byte header[8];
 
