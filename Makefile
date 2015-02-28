@@ -33,7 +33,7 @@ else
 	LDFLAGS		+=-L/opt/X11/lib
 
 # Not tested
-ifeq ($(UNAME), Macintosh)
+ifeq ($(UNAME), Darwin)
 	# Should be added when using GLFW (http://www.glfw.org/docs/latest/build.html#build_link_xcode)
 	LDFLAGS		+=-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
 endif
