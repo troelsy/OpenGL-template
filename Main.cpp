@@ -382,8 +382,8 @@ int main(int argc, char *argv[]){
     // Load shaders
     string vs = "";
     string fs = "";
-    assert(fileRead("Shader.vert", &vs) >= 0);
-    assert(fileRead("Shader.frag", &fs) >= 0);
+    assert(fileRead("colorVertex.vert", &vs) >= 0);
+    assert(fileRead("colorFragment.frag", &fs) >= 0);
 
     // Create dots
     arrayObject dot = {GL_POINTS,
