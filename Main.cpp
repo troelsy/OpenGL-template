@@ -57,7 +57,6 @@ struct texturePolygon {
     GLuint arrayLength;
 };
 
-
 float matrix[16] = {
     1.0f / ((float)width/2.0f), 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f / ((float)height/2.0f), 0.0f, 0.0f,
@@ -400,23 +399,6 @@ int main(int argc, char *argv[]){
         glEnableVertexAttribArray(1);
 
         drawArrayTexture(&tex);
-/*
-        glUseProgram(tex.shader);
-        glUniformMatrix4fv(tex.matrixID, 1, GL_FALSE, &MVP[0][0]);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex.texture);
-        glUniform1i(tex.textureID, 0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void*)0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-        glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,0,(void*)0);
-
-        glDrawArrays(GL_TRIANGLES, 0, 12*3);
-*/
-
 
         drawArray(&dot);
         drawArray(&tri);
