@@ -18,11 +18,15 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <assert.h>
+
+#define PNG_DEBUG 3
+#define PNG_SIG_BYTES 8
+#include <png.h>
 
 using namespace std;
 using namespace glm;
@@ -111,8 +115,8 @@ void glh::init(){
     // Load shaders
     string vs = "";
     string fs = "";
-    assert(fileRead("Shader.vert", &vs) >= 0);
-    assert(fileRead("Shader.frag", &fs) >= 0);
+    assert(fileRead("Shaders/Shader.vert", &vs) >= 0);
+    assert(fileRead("Shaders/Shader.frag", &fs) >= 0);
     shader = compileShader(vs, fs);
 }
 
@@ -163,6 +167,86 @@ GLuint glh::compileShader(string const& vs, string const& fs){
     return program;
 }
 
+GLuint glh::read_png_file(const char * file_name, int * width, int * height){
+    png_byte header[8];
+
+    FILE *fp = fopen(file_name, "rb");
+    assert(fp && "Could not open PNG file");
+
+    fread(header, 1, 8, fp);
+    assert(!png_sig_cmp(header, 0, PNG_SIG_BYTES) && "File is not a PNG");
+
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
+                                                 NULL, NULL);
+    assert(png_ptr && "Could not create read struct for PNG");
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    assert(info_ptr && "Could not create info struct");
+
+    png_infop end_info = png_create_info_struct(png_ptr);
+    assert(end_info && "Could not create end infomation");
+
+    assert(!setjmp(png_jmpbuf(png_ptr)) && "libpng encountered an error");
+
+    png_init_io(png_ptr, fp);
+    png_set_sig_bytes(png_ptr, PNG_SIG_BYTES);
+    png_read_info(png_ptr, info_ptr);
+
+    int bit_depth;
+    int color_type;
+    png_uint_32 temp_width;
+    png_uint_32 temp_height;
+    png_get_IHDR(png_ptr, info_ptr, &temp_width, &temp_height, &bit_depth,
+                 &color_type, NULL, NULL, NULL);
+
+    if (width){ *width = temp_width; }
+    if (height){ *height = temp_height; }
+
+
+    png_read_update_info(png_ptr, info_ptr);
+    int rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+
+    // glTexImage2d requires rows to be 4-byte aligned
+    rowbytes += 3 - ((rowbytes-1) % 4);
+
+    // Allocate the image_data as a big block, to be given to opengl
+    png_byte * image_data;
+    image_data = (png_byte *) malloc(rowbytes * temp_height * sizeof(png_byte)+15);
+    assert(image_data != NULL && "Could not allocate memory for PNG image data");
+
+    // row_pointers is for pointing to image_data for reading the png with libpng
+    png_bytep * row_pointers = (png_bytep *)malloc(temp_height * sizeof(png_bytep));
+    assert(row_pointers != NULL && "Could not allocate memory for PNG row pointers");
+
+    // set the individual row_pointers to point at the correct offsets of image_data
+    for (int i = 0; i < temp_height; i++){
+        row_pointers[temp_height - 1 - i] = image_data + i * rowbytes;
+    }
+
+    // read the png into image_data through row_pointers
+    png_read_image(png_ptr, row_pointers);
+
+    // Generate the OpenGL texture object
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, temp_width, temp_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // clean up
+    png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+    free(image_data);
+    free(row_pointers);
+    fclose(fp);
+
+    return texture;
+}
+
+
 // Default parameters given in header!
 glh::glh(int w, int h, string name,GLFWkeyfun kcb,GLFWmousebuttonfun mcb)
 {
@@ -175,91 +259,13 @@ glh::glh(int w, int h, string name,GLFWkeyfun kcb,GLFWmousebuttonfun mcb)
     keycallback = kcb;
 
 	init();
-
-    // Create dots
-    arrayObject dot = {GL_POINTS,
-                       shader,
-                       glm::vec3(1.0f, 1.0f, 0.0f),
-                       (GLuint)NULL,
-                       {0.0f,0.0f,0.0f,10.0f,-10.0f,0.0f,20.0f,-20.0f,0.0f,
-                        30.0f,-30.0f,0.0f,40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,
-                        60.0f,-60.0f,0.0f},
-                       21};
-
-    // Create triangle
-    arrayObject tri = {GL_TRIANGLES,
-                       shader,
-                       glm::vec3(0.0f, 1.0f, 1.0f),
-                       (GLuint)NULL,
-                       {50.0f,0.0f,0.0f,150.0f,100.0f,0.0f,0.0f,150.0f,0.0f},
-                       9};
-
-    // Create line
-    arrayObject line = {GL_LINES,
-                        shader,
-                        glm::vec3(1.0f, 0.0f, 1.0f),
-                        (GLuint)NULL,
-                        {150.0f,50.0f,0.0f,250.0f,350.0f,0.0f},
-                        4};
-
-    /*
-    GLfloat *buffer;
-    buffer = (GLfloat*) malloc(1024 * sizeof(GLfloat));
-    assert(buffer != NULL);
-    */
-    /*
-
-    glGenBuffers(1, &dot.vertexBuffer);
-    glGenBuffers(1, &tri.vertexBuffer);
-    glGenBuffers(1, &line.vertexBuffer);
-
-    // Upload data array buffer to GPU
-    uploadArray(&dot);
-    uploadArray(&tri);
-    uploadArray(&line);
-
-    // Get the uniform location of uploaded programs. You -must- refresh all
-    // uniforms, if you upload a new array.
-    getUniform(&dot);
-    getUniform(&tri);
-    getUniform(&line);*/
 }
-/*
-int glh::run()
-{
-	 // main loop
-    while(!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnableVertexAttribArray(0);
 
-        drawArray(&dot);
-        drawArray(&tri);
-        drawArray(&line);
-
-        glDisableVertexAttribArray(0);
-        glfwSwapBuffers(window);
-    }
-
-    cleanup();
-
-    return 0;
-}
-*/
 void glh::cleanup()
 {
     // Clean up
     glDeleteVertexArrays(1, &VertexArrayID);
-/*
-    glDeleteBuffers(1, &dot.vertexBuffer);
-    glDeleteBuffers(1, &tri.vertexBuffer);
-    glDeleteBuffers(1, &line.vertexBuffer);
 
-    glDeleteProgram(dot.shader);
-    glDeleteProgram(tri.shader);
-    glDeleteProgram(line.shader);
-*/
     glfwDestroyWindow(window);
     glfwTerminate();
 }

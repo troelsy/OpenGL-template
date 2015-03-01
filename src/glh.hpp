@@ -38,6 +38,18 @@ struct arrayObject {
 	GLuint uniform;
 };
 
+struct texturePolygon {
+    GLuint texture;
+    GLuint shader;
+    GLint textureID;
+    GLuint matrixID;
+    GLuint vertexBuffer;
+    GLuint uvBuffer;
+    GLfloat vertexBufferArray[1024];
+    GLfloat uvBufferArray[1024];
+    GLuint arrayLength;
+};
+
 
 // GLHelper
 class glh {
@@ -55,11 +67,11 @@ class glh {
 
 		void addShader(string const& shaderString, GLenum shaderType, GLuint m_program);
 		GLuint compileShader(string const& vs, string const& fs);
-
+		GLuint read_png_file(const char * file_name, int * width, int * height);
 		//		int run();
 	
 		GLFWwindow *window;
-	
+		GLuint shader;
 
 	private:
 		void init();
@@ -72,7 +84,6 @@ class glh {
 		GLFWkeyfun keycallback;
 	
 		GLuint VertexArrayID;
-		GLuint shader;
 
 		// Static Model-View-Projection matrix
 		float matrix[16] = {

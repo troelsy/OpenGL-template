@@ -31,6 +31,7 @@ else
 
 	# Add location for X11 library
 	LDFLAGS		+=-L/opt/X11/lib
+	
 
 # Not tested
 ifeq ($(UNAME), Darwin)
@@ -39,7 +40,7 @@ ifeq ($(UNAME), Darwin)
 endif
 
 	# For GLFW
-	LDFLAGS		+=-lglfw3 -lXinerama -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lpthread
+	LDFLAGS		+=-lglfw3 -lXinerama -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lpthread -lpng
 
 	# For OpenGL
 	LDFLAGS		+=-lGL -lGLU -lGLEW
