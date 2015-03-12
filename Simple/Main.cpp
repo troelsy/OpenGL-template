@@ -24,6 +24,7 @@
 #include <fstream>
 #include <assert.h>
 using namespace std;
+using namespace glm;
 
 GLint width = 1024;
 GLint height = 576;
@@ -35,7 +36,7 @@ struct arrayObject {
     GLuint shader;
     glm::vec3 colorVec;
     GLuint vertexBuffer;
-    GLfloat vertexArray[1024]; // Should be deleted after upload
+    GLfloat *vertexArray; // use heap array. (int *a = new int[len];)
     GLuint vertexArrayLength;
     GLuint programObject;
     GLuint uniform;
@@ -79,7 +80,7 @@ static void getUniform(struct arrayObject *obj){
     obj->uniform = glGetUniformLocation(obj->shader, "uColorVec");
 }
 
-static void init(){
+static void init(string title){
     glewExperimental = GL_TRUE;
 
     assert(glfwInit() == true  && "Could not initialize GLFW");
@@ -90,7 +91,7 @@ static void init(){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    window = glfwCreateWindow(width, height,"title", NULL, NULL);
+    window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     assert(window != NULL && "Could not initialize window");
     glfwMakeContextCurrent(window);
     assert(glewInit() == GLEW_OK && "Could not initialize GLEW");
@@ -180,7 +181,7 @@ GLuint compileShader(string const& vs, string const& fs){
 }
 
 int main(int argc, char *argv[]){
-    init(); // Set OpenGL settings
+    init("OpenGL!"); // Set OpenGL settings
 
     // Load shaders
     string vs = "";
@@ -188,18 +189,23 @@ int main(int argc, char *argv[]){
     assert(fileRead("Shader.vert", &vs) >= 0);
     assert(fileRead("Shader.frag", &fs) >= 0);
 
+	GLfloat arr[] = {0.0f,0.0f,0.0f,10.0f,-10.0f,0.0f,20.0f,-20.0f,0.0f,30.0f,-30.0f,0.0f,
+         40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,60.0f,-60.0f,0.0f};
+ 
+
     // Create dots
     arrayObject triangle = {
         GL_POINTS,
         compileShader(vs, fs),
         glm::vec3(1.0f, 1.0f, 0.0f),
         (GLuint)NULL,
-        {0.0f,0.0f,0.0f,10.0f,-10.0f,0.0f,20.0f,-20.0f,0.0f,30.0f,-30.0f,0.0f,
-         40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,60.0f,-60.0f,0.0f},
+        arr,
         21};
+
+
     glGenBuffers(1, &triangle.vertexBuffer);
 
-    // Upload data array buffer to GPU
+   // Upload data array buffer to GPU
     uploadArray(&triangle);
 
     // Get the uniform location of uploaded programs. You -must- refresh all
