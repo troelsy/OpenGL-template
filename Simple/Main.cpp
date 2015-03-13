@@ -1,5 +1,7 @@
 // https://github.com/troelsy/OpenGL-template
 
+#define GLM_FORCE_RADIANS
+
 #ifdef WIN32
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
@@ -193,9 +195,9 @@ int main(int argc, char *argv[]){
 	GLfloat arr[] = {0.0f,0.0f,0.0f,10.0f,-10.0f,0.0f,20.0f,-20.0f,0.0f,30.0f,-30.0f,0.0f,
          40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,60.0f,-60.0f,0.0f, 100.0f,100.0f,0.0f};
  */
-	GLfloat arr[] = {0.0f,-height/2,0.0f,
-					width/2, height/2, 0.0f,
-					-width/2, height/2, 0.0f};
+	GLfloat arr[] = {0.0f,-height/2.0f,0.0f,
+					width/2.0f, height/2.0f, 0.0f,
+					-width/2.0f, height/2.0f, 0.0f};
 
     // Create dots
     arrayObject triangle = {
