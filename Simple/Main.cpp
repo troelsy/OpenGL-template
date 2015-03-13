@@ -94,7 +94,7 @@ static void init(string title){
     window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     assert(window != NULL && "Could not initialize window");
     glfwMakeContextCurrent(window);
-    assert(glewInit() == GLEW_OK && "Could not initialize GLEW");
+    assert(glewInit() == GLEW_OK && "C1ould not initialize GLEW");
 
     glfwSetKeyCallback(window, keyboardCallback); // Set GLFW call back function
 
@@ -181,7 +181,7 @@ GLuint compileShader(string const& vs, string const& fs){
 }
 
 int main(int argc, char *argv[]){
-    init("OpenGL!"); // Set OpenGL settings
+    init("OpenGL"); // Set OpenGL settings
 
     // Load shaders
     string vs = "";
@@ -189,19 +189,22 @@ int main(int argc, char *argv[]){
     assert(fileRead("Shader.vert", &vs) >= 0);
     assert(fileRead("Shader.frag", &fs) >= 0);
 
+/*
 	GLfloat arr[] = {0.0f,0.0f,0.0f,10.0f,-10.0f,0.0f,20.0f,-20.0f,0.0f,30.0f,-30.0f,0.0f,
-         40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,60.0f,-60.0f,0.0f};
- 
+         40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,60.0f,-60.0f,0.0f, 100.0f,100.0f,0.0f};
+ */
+	GLfloat arr[] = {0.0f,-height/2,0.0f,
+					width/2, height/2, 0.0f,
+					-width/2, height/2, 0.0f};
 
     // Create dots
     arrayObject triangle = {
-        GL_POINTS,
+        GL_TRIANGLES,
         compileShader(vs, fs),
         glm::vec3(1.0f, 1.0f, 0.0f),
         (GLuint)NULL,
         arr,
-        21};
-
+        9};
 
     glGenBuffers(1, &triangle.vertexBuffer);
 
