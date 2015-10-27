@@ -28,11 +28,8 @@ else
 	CPPFLAGS	+=-I/opt/local/include # For GLM on Mac
 	LDFLAGS		+=-L/opt/X11/lib
 
-# Not tested
-ifeq ($(UNAME), Darwin)
 	# Should be added when using GLFW (http://www.glfw.org/docs/latest/build.html#build_link_xcode)
 	LDFLAGS		+=-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
-endif
 
 	# For GLFW
 	LDFLAGS		+=-lglfw3 -lXinerama -lX11 -lXrandr -lXi -lXxf86vm -lXcursor -lpthread
