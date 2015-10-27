@@ -189,22 +189,28 @@ int main(int argc, char *argv[]){
     assert(fileRead("Shader.frag", &fs) >= 0);
 
     // Create dots
-    arrayObject triangle = {
+    arrayObject dots = {
         GL_POINTS,
         compileShader(vs, fs),
         glm::vec3(1.0f, 1.0f, 0.0f),
         (GLuint)NULL,
-        {0.0f,0.0f,0.0f,10.0f,-10.0f,0.0f,20.0f,-20.0f,0.0f,30.0f,-30.0f,0.0f,
-         40.0f,-40.0f,0.0f,50.0f,-50.0f,0.0f,60.0f,-60.0f,0.0f},
-        21};
-    glGenBuffers(1, &triangle.vertexBuffer);
+        { 0.0f,   0.0f, 0.0f,
+         10.0f, -10.0f, 0.0f,
+         20.0f, -20.0f, 0.0f,
+         30.0f, -30.0f, 0.0f,
+         40.0f, -40.0f, 0.0f,
+         50.0f, -50.0f, 0.0f,
+         60.0f, -60.0f, 0.0f},
+        7*3};
+
+    glGenBuffers(1, &dots.vertexBuffer);
 
     // Upload data array buffer to GPU
-    uploadArray(&triangle);
+    uploadArray(&dots);
 
     // Get the uniform location of uploaded programs. You -must- refresh all
     // uniforms, if you upload a new array.
-    getUniform(&triangle);
+    getUniform(&dots);
 
     // main loop
     while(!glfwWindowShouldClose(window))
@@ -213,7 +219,7 @@ int main(int argc, char *argv[]){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnableVertexAttribArray(0);
 
-        drawArray(&triangle);
+        drawArray(&dots);
 
         glDisableVertexAttribArray(0);
         glfwSwapBuffers(window);
@@ -222,9 +228,9 @@ int main(int argc, char *argv[]){
     // Clean up
     glDeleteVertexArrays(1, &VertexArrayID);
 
-    glDeleteBuffers(1, &triangle.vertexBuffer);
+    glDeleteBuffers(1, &dots.vertexBuffer);
 
-    glDeleteProgram(triangle.shader);
+    glDeleteProgram(dots.shader);
 
     glfwDestroyWindow(window);
     glfwTerminate();
